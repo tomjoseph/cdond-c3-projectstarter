@@ -176,10 +176,13 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install Ansible
           command: |
-            # install the dependencies needed for your playbook
             apk add --update ansible
+      - run:
+          name: Install aws-cli
+          command: |
+            pip install --upgrade pip
             pip3 install awscliv2 --upgrade
       - run:
           name: Configure server
