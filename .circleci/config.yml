@@ -179,7 +179,7 @@ jobs:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
-            add --update ansible
+            apk add --update ansible
             pip3 install aws-cli
       - run:
           name: Configure server
