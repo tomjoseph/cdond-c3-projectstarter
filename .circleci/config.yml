@@ -168,7 +168,8 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+#      - image: python:3.7-alpine3.11
+      - image: amazon/aws-cli
     steps:
       - checkout
       - add_ssh_keys:
@@ -179,7 +180,8 @@ jobs:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
-            apk add --update ansible aws-cli
+#            add --update ansible aws-cli
+            yum install -y ansible
       - run:
           name: Configure server
           command: |
