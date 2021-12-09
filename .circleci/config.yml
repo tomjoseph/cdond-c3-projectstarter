@@ -17,11 +17,10 @@ commands:
              aws cloudformation delete-stack --stack-name "Backend-Tom-${CIRCLE_WORKFLOW_ID:0:7}"
              aws cloudformation delete-stack --stack-name "Frontend-Tom-${CIRCLE_WORKFLOW_ID:0:7}"
 
-  notify-when-failure:
-    description: Notify when failure
+  notify-on-failure:
+    description: Notify on failure
     steps:
       - slack/notify:
-          when: on_fail
           channel: circleci-tom
           event: fail
           template: basic_fail_1
@@ -165,7 +164,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Rollback on failure      
       - destroy-environment  
-      - notify-when-failure
+      - notify-on-failure
 
   configure-infrastructure:
     docker:
@@ -190,7 +189,7 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       # Rollback on failure      
       - destroy-environment  
-      - notify-when-failure
+      - notify-on-failure
 
   run-migrations:
     docker:
@@ -219,7 +218,7 @@ jobs:
             fi
       # Rollback on failure      
       - destroy-environment  
-      - notify-when-failure
+      - notify-on-failure
 
   deploy-frontend:
     docker:
@@ -259,7 +258,7 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Rollback on failure      
       - destroy-environment  
-      - notify-when-failure
+      - notify-on-failure
 
   deploy-backend:
     docker:
@@ -296,7 +295,7 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Rollback on failure      
       - destroy-environment  
-      - notify-when-failure
+      - notify-on-failure
 
 workflows:
   default:
