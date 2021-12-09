@@ -205,8 +205,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get update && \
-            apt-get install -y python-pip python-dev
             pip install --upgrade pip
             pip3 install awscliv2 --upgrade
       - run:
@@ -307,8 +305,8 @@ jobs:
 workflows:
   default:
     jobs:
-#      - build-frontend
-#      - build-backend
+      - build-frontend
+      - build-backend
 #      - test-frontend:
 #          requires: [build-frontend]
 #      - test-backend:
@@ -317,11 +315,11 @@ workflows:
 #          requires: [build-backend]
 #      - scan-frontend:
 #          requires: [build-frontend]
-#      - deploy-infrastructure:
+      - deploy-infrastructure:
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#          requires: [build-frontend, build-backend]
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
+          requires: [build-frontend, build-backend]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
