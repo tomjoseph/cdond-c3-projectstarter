@@ -180,7 +180,7 @@ jobs:
           command: |
             # install the dependencies needed for your playbook
             apk add --update ansible
-            pip3 install aws-cli
+            pip3 install awscliv2 --upgrade
       - run:
           name: Configure server
           command: |
