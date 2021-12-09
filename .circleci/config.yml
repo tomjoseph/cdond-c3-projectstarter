@@ -180,7 +180,7 @@ jobs:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
-#            add --update ansible aws-cli
+            # add --update ansible aws-cli
             yum install -y ansible
       - run:
           name: Configure server
