@@ -185,7 +185,11 @@ jobs:
           command: |
             # install the dependencies needed for your playbook
             # add --update ansible aws-cli
-            yum install -y ansible
+            #yum install -y ansible
+            apt-get install software-properties-common
+            apt-add-repository ppa:ansible/ansible -y
+            apt-get update
+            apt-get install ansible
       - run:
           name: Configure server
           command: |
