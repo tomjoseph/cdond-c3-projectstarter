@@ -227,17 +227,19 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - checkout
       - restore_cache:
           keys: [frontend-build]
       - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
+      - run:
           name: Install dependencies
           command: |
-            sudo apt-get update && \
-            sudo apt-get -y install python3-pip
-            pip3 install awscliv2 --upgrade
+            yum install -y nodejs npm 
       - run:
           name: Get backend url
           command: |
@@ -262,31 +264,25 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Rollback on failure      
-      - destroy-environment  
+#      - destroy-environment  
 #      - notify-on-failure
 
   deploy-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: ["4b:34:8a:72:f8:b0:bf:9d:c7:fc:6a:0a:27:8a:c1:92"]
-      - restore_cache:
-          keys: [backend-build]
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install Ansible
           command: |
             apk add --update ansible
-            apk add --update sudo apt-get install
-      - run:
-          name: Install aws-cli
-          command: |
-            sudo apt-get update && \
-            sudo apt-get -y install python3-pip
-            pip3 install awscliv2 --upgrade
+            yum install -y nodejs npm 
       - run:
           name: Deploy backend
           command: |
@@ -299,7 +295,7 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Rollback on failure      
-      - destroy-environment  
+#      - destroy-environment  
 #      - notify-on-failure
 
 workflows:
