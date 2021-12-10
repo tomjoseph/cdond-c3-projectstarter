@@ -29,12 +29,29 @@
     production: yes
     state: present
 
+- name: "Create directory"
+  file:
+    path: ~/backend
+    state: directory
+
+- name: "Copy compiled backend"
+  copy:
+    src: artifact.tar.gz
+    dest: "~/backend/artifact.tar.gz"
+
 - name: Executing node
   shell: |
     tar -xzvf artifact.tar.gz
     echo "backend extracted"
-    ls -l backend
+    cd backend
     npm install
+    ls -al
     pm2 stop default
     pm2 start npm -- start
-    
+    register: out_exec_node
+
+- name: debug message
+- debug: 
+    # var=out.stdout_lines
+    msg: "{{ out_exec_node.stdout_lines }}"
+  
