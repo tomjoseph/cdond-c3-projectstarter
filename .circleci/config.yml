@@ -333,6 +333,8 @@ jobs:
             cd ..
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
+            mkdir -p .circleci/ansible/roles/deploy/files
+            cp -f artifact.tar.gz .circleci/ansible/roles/deploy/files/.
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Rollback on failure      
