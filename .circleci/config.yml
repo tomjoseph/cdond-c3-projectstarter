@@ -235,8 +235,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update python3-pip curl nodejs npm
-            pip3 install awscliv2 --upgrade
+            apk add --update curl nodejs npm
       - run:
           name: Get backend url
           command: |
@@ -278,8 +277,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update python3-pip curl nodejs npm ansible
-            pip3 install awscliv2 --upgrade
+            apk add --update curl nodejs npm ansible
       - run:
           name: Deploy backend
           command: |
