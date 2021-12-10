@@ -227,19 +227,18 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: Install tar utility
-          command: |
-            yum install -y tar gzip
-      - run:
           name: Install dependencies
           command: |
-            yum install -y nodejs npm 
+            sudo apt-get update && \
+            sudo apt-get -y install python3-pip
+            sudo apk add --update curl nodejs npm
+            pip3 install awscliv2 --upgrade
       - run:
           name: Get backend url
           command: |
@@ -279,10 +278,12 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Install Ansible
+          name: Install dependencies
           command: |
-            apk add --update ansible
-            yum install -y nodejs npm 
+            sudo apt-get update && \
+            sudo apt-get -y install python3-pip
+            sudo apk add --update curl nodejs npm ansible
+            pip3 install awscliv2 --upgrade
       - run:
           name: Deploy backend
           command: |
