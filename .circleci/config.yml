@@ -16,6 +16,7 @@ commands:
           when: on_fail
           command: |
              echo "Destroying environment: << parameters.workflow_id >> "
+             aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
              aws cloudformation delete-stack --stack-name "Backend-Tom-<< parameters.workflow_id >>"
              aws cloudformation delete-stack --stack-name "Frontend-Tom-<< parameters.workflow_id >>"
 
@@ -33,9 +34,12 @@ commands:
             SUCCESS=$( curl -H "token: 7933fe63-4687-4fa1-8426-aa25aa1730ec" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >> )
             if (( $SUCCESS==1 )); 
             then
+              echo "Reverting migrations: << parameters.workflow_id >> "
               cd ~/project/backend
               npm install
               npm run migration:revert
+            else 
+              echo "No migrations to revert: << parameters.workflow_id >> "
             fi
 
   notify-on-failure:
@@ -346,17 +350,13 @@ jobs:
           command: |
             pip install awscli
       - run:
-          name: Get backend url
+          name: Backend smoke test.
           command: |
             # Fetch and prepare the BACKEND_IP env var
             export BACKEND_IP=$( aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Project,Values=Project03-BE-Tom" \
               --output text )
-            echo "BACKEND_IP: ${BACKEND_IP}"
-      - run:
-          name: Backend smoke test.
-          command: |
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
