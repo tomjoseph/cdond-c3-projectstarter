@@ -7,27 +7,30 @@ orbs:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    #parameters:
-      # Add parameter here   
+    parameters:
+      workflow_id:
+        type: string    
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-             aws cloudformation delete-stack --stack-name "Backend-Tom-${CIRCLE_WORKFLOW_ID:0:7}"
-             aws cloudformation delete-stack --stack-name "Frontend-Tom-${CIRCLE_WORKFLOW_ID:0:7}"
+             echo "Destroying environment: << parameters.workflow_id >> "
+             aws cloudformation delete-stack --stack-name "Backend-Tom-<< parameters.workflow_id >>"
+             aws cloudformation delete-stack --stack-name "Frontend-Tom-<< parameters.workflow_id >>"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      # Add parameter here     
+      workflow_id:
+        type: string    
     steps:
       - run:
           name: Revert migrations
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = $( curl -H "token: 7933fe63-4687-4fa1-8426-aa25aa1730ec" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7} )
+            SUCCESS=$( curl -H "token: 7933fe63-4687-4fa1-8426-aa25aa1730ec" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >> )
             if (( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -181,7 +184,8 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       # Rollback on failure      
-      - destroy-environment  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 #      - notify-on-failure
 
   configure-infrastructure:
@@ -210,7 +214,8 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       # Rollback on failure      
-      - destroy-environment  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 #      - notify-on-failure
 
   run-migrations:
@@ -243,8 +248,10 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: 7933fe63-4687-4fa1-8426-aa25aa1730ec" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
       # Rollback on failure      
-      - revert-migrations      
-      - destroy-environment  
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 #      - notify-on-failure
 
   deploy-frontend:
@@ -286,8 +293,10 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Rollback on failure      
-      - revert-migrations      
-      - destroy-environment  
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 #      - notify-on-failure
 
   deploy-backend:
@@ -317,8 +326,10 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Rollback on failure      
-      - revert-migrations      
-      - destroy-environment  
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 #      - notify-on-failure
 
   smoke-test:
@@ -326,12 +337,10 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - restore_cache:
-          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl nodejs npm
+            apk add --update curl
       - run:
           name: Install dependencies
           command: |
@@ -344,6 +353,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Project,Values=Project03-BE-Tom" \
               --output text )
+            echo "BACKEND_IP: ${BACKEND_IP}"
       - run:
           name: Backend smoke test.
           command: |
@@ -368,8 +378,10 @@ jobs:
               return 1
             fi
       # Here's where you will add some code to rollback on failure  
-      - revert-migrations      
-      - destroy-environment  
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 #      - notify-on-failure
 
   cloudfront-update:
@@ -390,8 +402,10 @@ jobs:
                     --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
                     --tags project=udapeople
       # Here's where you will add some code to rollback on failure  
-      - revert-migrations      
-      - destroy-environment  
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 #      - notify-on-failure
 
   cleanup:
