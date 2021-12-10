@@ -215,7 +215,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - restore_cache:
@@ -223,11 +223,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            #sudo apt-get update && \
-            #sudo apt-get -y install python3-pip
-            #pip3 install awscliv2 --upgrade
-            sudo apt-get update && \
-            sudo apt-get -y install python
+            apk add --update curl nodejs npm
+      - run:
+          name: Install dependencies
+          command: |
             pip install awscli
       - run:
           name: Run migrations
@@ -258,7 +257,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl nodejs npm sudo
+            apk add --update curl nodejs npm
       - run:
           name: Install dependencies
           command: |
@@ -373,6 +372,62 @@ jobs:
       - destroy-environment  
 #      - notify-on-failure
 
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+                    --template-file .circleci/files/cloudfront.yml \
+                    --stack-name InitialStack \
+                    --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+                    --tags project=udapeople
+      # Here's where you will add some code to rollback on failure  
+      - revert-migrations      
+      - destroy-environment  
+#      - notify-on-failure
+
+cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
+      - run:
+          name: Get old stack workflow id
+          command: |
+            # Fetch the Old workflow ID
+            export OldWorkflowID=$(aws cloudformation \
+                    list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                    --no-paginate --output text)
+            echo OldWorkflowID: "${OldWorkflowID}"
+            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+            # Fetch the stack names          
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                    --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Stack names: "${STACKS[@]}"    
+      - run:
+          name: Remove old stacks and files
+          command: |
+            # if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
+            if [[ "${OldWorkflowID}" =~ "${STACKS[@]}"  ]]
+            #if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
+            then
+                echo "Delete Stack"
+            else
+                echo "Do Nothing"
+            fi
+
 workflows:
   default:
     jobs:
@@ -399,3 +454,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
