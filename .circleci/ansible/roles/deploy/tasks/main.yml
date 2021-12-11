@@ -1,33 +1,45 @@
 ---
 
+- name: Setup check1
+  shell: |
+    cd ~/
+    echo "Root contents:"
+    pwd
+    ls -al
+    cd ~/backend
+    echo "Backend contents:"
+    pwd
+    ls -al
+    echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}"
+    find ~/ -type f -name "artifact.tar.gz"
+  register: out_setup_check1_node
+
+- name: Setup check1 debug message
+  debug: 
+    msg: "{{ out_setup_check1_node.stdout_lines }}"
+
 - name: "Create directory"
   file:
     path: ~/backend
     state: directory
 
 - name: "Copy and unzip compiled backend"
-  ansible.builtin.unarchive:
+  unarchive:
     src: artifact.tar.gz
     dest: "~/backend/"
-    remote_src: yes
 
-- name: Setup check
+- name: Setup check2
   shell: |
-    cd ~/
-    echo "Root contents:"
-    pws
-    ls -al
     cd ~/backend
     echo "Backend contents:"
     pwd
     ls -al
     rm -f ~/.npm/_logs/*
-    echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}"
-  register: out_setup_check_node
+  register: out_setup_check2_node
 
-- name: Setup check debug message
+- name: Setup check2 debug message
   debug: 
-    msg: "{{ out_setup_check_node.stdout_lines }}"
+    msg: "{{ out_setup_check2_node.stdout_lines }}"
   
 - name: Executing node
   shell: |
