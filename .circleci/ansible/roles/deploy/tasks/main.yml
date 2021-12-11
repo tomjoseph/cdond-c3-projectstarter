@@ -15,8 +15,9 @@
     ls -al
     npm install
     npm run build
-    pm2 stop default
-    pm2 start npm -- start
+    #pm2 stop default
+    #pm2 start npm -- start
+    npm run start &
   register: out_exec_node
 
 - name: debug message
