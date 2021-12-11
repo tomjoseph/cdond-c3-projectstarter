@@ -1,7 +1,4 @@
 ---
-- name: Cleansetup
-  shell: |
-    rm -rf ~/backend
 
 - name: "Create directory"
   file:
@@ -13,6 +10,24 @@
     src: artifact.tar.gz
     dest: "~/backend/"
 
+- name: Setup check
+  shell: |
+    cd ~/
+    echo "Root contents:"
+    pws
+    ls -al
+    cd ~/backend
+    echo "Backend contents:"
+    pwd
+    ls -al
+    rm -f ~/.npm/_logs/*
+    echo "TYPEORM_DATABASE=$TYPEORM_DATABASE"
+  register: out_setup_check_node
+
+- name: Setup check debug message
+  debug: 
+    msg: "{{ out_setup_check_node.stdout_lines }}"
+  
 - name: Executing node
   shell: |
     cd ~/backend
@@ -28,7 +43,7 @@
     echo "TYPEORM_DATABASE=$TYPEORM_DATABASE"
   register: out_exec_node
 
-- name: debug message
+- name: Execution debug message
   debug: 
     # var=out.stdout_lines
     msg: "{{ out_exec_node.stdout_lines }}"
