@@ -14,6 +14,7 @@
     cd ~/backend
     ls -al
     npm install
+    npm run build
     pm2 stop default
     pm2 start npm -- start
   register: out_exec_node
