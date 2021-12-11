@@ -16,8 +16,8 @@ commands:
           when: on_fail
           command: |
              echo "Destroying environment: << parameters.workflow_id >> "
-             aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
              aws cloudformation delete-stack --stack-name "Backend-Tom-<< parameters.workflow_id >>"
+             aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
              aws cloudformation delete-stack --stack-name "Frontend-Tom-<< parameters.workflow_id >>"
 
   revert-migrations:
@@ -333,9 +333,11 @@ jobs:
             cd ..
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
-            mkdir -p .circleci/ansible/roles/deploy/files
-            cp -f artifact.tar.gz .circleci/ansible/roles/deploy/files/.
-            cd .circleci/ansible
+            mkdir -p ~project/.circleci/ansible/roles/deploy/files
+            cp -f artifact.tar.gz ~project/.circleci/ansible/roles/deploy/files/.
+            ls -l ~project/.circleci/ansible/roles/deploy/files/
+
+            cd ~project/.circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Rollback on failure      
 #      - revert-migrations:
