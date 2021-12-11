@@ -13,15 +13,19 @@ orbs:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      workflow-id:
+        type: string
+        default: "<< pipeline.parameters.workflow-id >>"
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-             echo "Destroying environment: << pipeline.parameters.workflow-id >> "
-             aws cloudformation delete-stack --stack-name "Backend-Tom-<< pipeline.parameters.workflow-id >>"
-             aws s3 rm "s3://udapeople-<< pipeline.parameters.workflow-id >>" --recursive
-             aws cloudformation delete-stack --stack-name "Frontend-Tom-<< pipeline.parameters.workflow-id >>"
+             echo "Destroying environment: << parameters.workflow-id >> "
+             aws cloudformation delete-stack --stack-name "Backend-Tom-<< parameters.workflow-id >>"
+             aws s3 rm "s3://udapeople-<< parameters.workflow-id >>" --recursive
+             aws cloudformation delete-stack --stack-name "Frontend-Tom-<< parameters.workflow-id >>"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -354,6 +358,8 @@ jobs:
             cat ~/project/.circleci/ansible/inventory.txt
             # Run ansible
             echo "Running ansible deploy-backend.yml"
+            cd ~/project/.circleci/ansible/
+            pwd
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
       # Rollback on failure      
       - revert-migrations
@@ -484,7 +490,7 @@ workflows:
       - configure-infrastructure:
           requires: [save-workspace-inventory]
       - run-migrations:
-          requires: [save-workspace-inventory]
+          requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
       - deploy-backend:

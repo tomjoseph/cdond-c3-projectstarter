@@ -11,7 +11,10 @@
     pwd
     ls -al
     echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}"
+    echo "Finding artifact.tar.gz ..."
     find ~/ -type f -name "artifact.tar.gz"
+    find ~/.ansible -type f
+    find ~/backend/.ansible -type f
   register: out_setup_check1_node
 
 - name: Setup check1 debug message
@@ -20,17 +23,17 @@
 
 - name: "Create directory"
   file:
-    path: ~/backend
+    path: ~/backend-new
     state: directory
 
 - name: "Copy and unzip compiled backend"
   unarchive:
     src: artifact.tar.gz
-    dest: "~/backend/"
+    dest: "~/backend-new/"
 
 - name: Setup check2
   shell: |
-    cd ~/backend
+    cd ~/backend-new
     echo "Backend contents:"
     pwd
     ls -al
@@ -43,7 +46,7 @@
   
 - name: Executing node
   shell: |
-    cd ~/backend
+    cd ~/backend-new
     echo "Backend contents:"
     ls -al
     npm install
