@@ -330,14 +330,19 @@ jobs:
             cd backend
             npm install
             npm run build
-            cd ..
             # Zip the directory
-            tar -C backend -czvf artifact.tar.gz .
+            cd ..
+            echo "Creating archive artifact.tar.gz"
+            pwd
+            tar -C backend -czf artifact.tar.gz .
             mkdir -p ~project/.circleci/ansible/roles/deploy/files
             cp -f artifact.tar.gz ~project/.circleci/ansible/roles/deploy/files/.
+            echo "Files in: ~project/.circleci/ansible/roles/deploy/files/"
             ls -l ~project/.circleci/ansible/roles/deploy/files/
-
+            # Run ansible
             cd ~project/.circleci/ansible
+            echo "Running ansible deploy-backend.yml"
+            pwd
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Rollback on failure      
 #      - revert-migrations:
