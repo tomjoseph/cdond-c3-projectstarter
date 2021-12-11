@@ -66,7 +66,6 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 node_modules
 
-.env
 dist
 
 **/config-work.yml
