@@ -1,4 +1,8 @@
 ---
+- name: Cleansetup
+  shell: |
+    rm -rf ~/backend
+
 - name: "Create directory"
   file:
     path: ~/backend
@@ -12,6 +16,7 @@
 - name: Executing node
   shell: |
     cd ~/backend
+    echo "Backend contents:"
     ls -al
     npm install
     npm run build
