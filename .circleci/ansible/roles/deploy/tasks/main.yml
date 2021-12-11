@@ -43,7 +43,7 @@
   shell: |
     tar -xzvf artifact.tar.gz
     echo "backend extracted"
-    cd backend
+    cd ~/backend
     npm install
     ls -al
     pm2 stop default
@@ -51,7 +51,7 @@
     register: out_exec_node
 
 - name: debug message
-- debug: 
+  debug: 
     # var=out.stdout_lines
     msg: "{{ out_exec_node.stdout_lines }}"
   
