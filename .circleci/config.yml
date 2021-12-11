@@ -231,9 +231,13 @@ jobs:
       - run:
           name: Configure server
           command: |
+            echo "EC2 Inventory"
             echo ".circleci/ansible/inventory.txt" 
             cat .circleci/ansible/inventory.txt
+            # Run ansible
+            echo "Running ansible configure-server.yml"
             cd .circleci/ansible
+            pwd
             ansible-playbook -i inventory.txt configure-server.yml
       # Rollback on failure
 #      - destroy-environment
@@ -360,7 +364,7 @@ jobs:
             echo "Running ansible deploy-backend.yml"
             cd ~/project/.circleci/ansible/
             pwd
-            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
+            ansible-playbook -i inventory.txt deploy-backend.yml
       # Rollback on failure      
       - revert-migrations
 #      - destroy-environment

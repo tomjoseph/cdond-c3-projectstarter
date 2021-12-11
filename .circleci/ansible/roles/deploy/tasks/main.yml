@@ -6,15 +6,14 @@
     echo "Root contents:"
     pwd
     ls -al
-    cd ~/backend
-    echo "Backend contents:"
+    cd ~/.ansible
+    echo ".ansible contents:"
     pwd
     ls -al
     echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}"
     echo "Finding artifact.tar.gz ..."
     find ~/ -type f -name "artifact.tar.gz"
-    find ~/.ansible -type f
-    find ~/backend/.ansible -type f
+    echo "--done ..."
   register: out_setup_check1_node
 
 - name: Setup check1 debug message
