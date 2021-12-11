@@ -28,9 +28,3 @@
     global: yes
     production: yes
     state: present
-    register: out_install_pm2
-
-- name: debug message
-  debug: 
-    msg: "{{ out_install_pm2.stdout_lines }}"
-  
