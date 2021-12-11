@@ -6,9 +6,10 @@
     state: directory
 
 - name: "Copy and unzip compiled backend"
-  unarchive:
+  ansible.builtin.unarchive:
     src: artifact.tar.gz
     dest: "~/backend/"
+    remote_src: yes
 
 - name: Setup check
   shell: |
@@ -21,7 +22,7 @@
     pwd
     ls -al
     rm -f ~/.npm/_logs/*
-    echo "TYPEORM_DATABASE=$TYPEORM_DATABASE"
+    echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}"
   register: out_setup_check_node
 
 - name: Setup check debug message
@@ -40,7 +41,7 @@
     #npm run start &
     pm2 start npm -- start
     tail -n 100 ~/.npm/_logs/*
-    echo "TYPEORM_DATABASE=$TYPEORM_DATABASE"
+    echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}"
   register: out_exec_node
 
 - name: Execution debug message

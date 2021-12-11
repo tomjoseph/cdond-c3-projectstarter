@@ -3,8 +3,8 @@ version: 2.1
 parameters:
   workflow-id:
     type: string
-#    default: "${CIRCLE_WORKFLOW_ID:0:7}"
-    default: "42ca443"
+    default: "${CIRCLE_WORKFLOW_ID:0:7}"
+#    default: "42ca443"
 
 orbs: 
   slack: circleci/slack@4.5.0
@@ -473,24 +473,24 @@ workflows:
 #          requires: [build-backend]
 #      - scan-frontend:
 #          requires: [build-frontend]
-#      - deploy-infrastructure:
+      - deploy-infrastructure:
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#          requires: [build-frontend, build-backend]
+          requires: [build-frontend, build-backend]
       - save-workspace-inventory:
-#          requires: [deploy-infrastructure]
-          requires: [build-backend]
-#      - configure-infrastructure:
-#          requires: [save-workspace-inventory]
-#      - run-migrations:
-#          requires: [save-workspace-inventory]
-#      - deploy-frontend:
-#          requires: [run-migrations]
-      - deploy-backend:
-#          requires: [run-migrations]
+          requires: [deploy-infrastructure]
+#          requires: [build-backend]
+      - configure-infrastructure:
           requires: [save-workspace-inventory]
+      - run-migrations:
+          requires: [save-workspace-inventory]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+#          requires: [save-workspace-inventory]
       - smoke-test:
-#          requires: [deploy-backend, deploy-frontend]
-          requires: [deploy-backend]
+          requires: [deploy-backend, deploy-frontend]
+#          requires: [deploy-backend]
       - cloudfront-update:
           requires: [smoke-test]
       - cleanup:
