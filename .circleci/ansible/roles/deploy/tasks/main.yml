@@ -53,11 +53,9 @@
     npm install
     npm run build
     #pm2 stop default
-    rm -f ~/.npm/_logs/*
-    npm run start &
-    #pm2 start npm -- start
+    #npm run start &
     # pm2 start main.js
-    tail -n 100 ~/.npm/_logs/*
+    pm2 start npm -- start
   register: out_exec_node
 
 - name: Execution debug message
