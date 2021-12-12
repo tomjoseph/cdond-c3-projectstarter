@@ -353,13 +353,17 @@ jobs:
             echo "Creating archive artifact.tar.gz"
             cp ../package.json .
             tar -czf ../artifact.tar.gz .
-            mkdir -p ~project/.circleci/ansible/roles/deploy/files
-            mv -f ../artifact.tar.gz ~project/.circleci/ansible/roles/deploy/files/.
-            echo "Testing..." > ~project/.circleci/ansible/roles/deploy/files/testing.txt
-            echo "Files in: ~project/.circleci/ansible/roles/deploy/files/"
-            ls -l ~project/.circleci/ansible/roles/deploy/files/
+            mkdir -p ~/project/.circleci/ansible/roles/deploy/files
+            mv -f ../artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/.
+            echo "Testing..." > ~/project/.circleci/ansible/roles/deploy/files/testing.txt
+            echo "Files in: ~/project/.circleci/ansible/roles/deploy/files/"
+            cd ~/project/.circleci/ansible/roles/deploy/files/
+            pwd
+            ls -l ~/project/.circleci/ansible/roles/deploy/files/
             echo "Files in: ~/project/.circleci/ansible/"
-            ls -l ~/project/.circleci/ansible/            
+            cd ~/project/.circleci/ansible/
+            pwd
+            ls -l ~/project/.circleci/ansible/
       - run:
           name: Deploy backend
           command: |

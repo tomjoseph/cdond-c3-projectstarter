@@ -28,7 +28,7 @@
 - name: "Copy compiled backend artifact"
   copy:
     src: artifact.tar.gz
-    dest: artifact.tar.gz
+    dest: ~/backend-new/artifact.tar.gz
 
 - name: "Untar artifact"
   shell: |
