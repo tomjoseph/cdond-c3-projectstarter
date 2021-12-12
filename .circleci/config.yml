@@ -355,6 +355,7 @@ jobs:
             tar -czf ../artifact.tar.gz .
             mkdir -p ~project/.circleci/ansible/roles/deploy/files
             mv -f ../artifact.tar.gz ~project/.circleci/ansible/roles/deploy/files/.
+            echo "Testing..." > ~project/.circleci/ansible/roles/deploy/files/testing.txt
             echo "Files in: ~project/.circleci/ansible/roles/deploy/files/"
             ls -l ~project/.circleci/ansible/roles/deploy/files/
             echo "Files in: ~/project/.circleci/ansible/"
