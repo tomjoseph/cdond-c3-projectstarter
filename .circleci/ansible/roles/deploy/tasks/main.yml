@@ -22,44 +22,40 @@
 
 - name: "Create directory"
   file:
-    path: ~/backend-new
+    path: ~/backend
     state: directory
 
 - name: "Copy compiled backend artifact"
   copy:
     src: artifact.tar.gz
-    dest: ~/backend-new/artifact.tar.gz
+    dest: ~/backend/.
 
 - name: "Untar artifact"
   shell: |
-    cd ~/backend_new
+    cd ~/backend
     tar -xzf artifact.tar.gz 
-    rm -rf artifact.tar.gz
-
-- name: Setup check2
-  shell: |
-    cd ~/backend-new
+    rm -f artifact.tar.gz
     echo "Backend contents:"
     pwd
     ls -al
     rm -f ~/.npm/_logs/*
   register: out_setup_check2_node
 
-- name: Setup check2 debug message
+- name: untar debug message
   debug: 
     msg: "{{ out_setup_check2_node.stdout_lines }}"
   
 - name: Executing node
   shell: |
-    cd ~/backend-new
+    cd ~/backend
     echo "Backend contents:"
     ls -al
     npm install
-    #npm run build
-    pm2 stop default
+    npm run build
+    #pm2 stop default
     rm -f ~/.npm/_logs/*
-    #npm run start &
-    pm2 start npm -- start
+    npm run start &
+    #pm2 start npm -- start
     # pm2 start main.js
     tail -n 100 ~/.npm/_logs/*
   register: out_exec_node

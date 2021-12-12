@@ -346,16 +346,10 @@ jobs:
             npm install
             npm run build
             # Zip the directory
-            cd dist
-            echo "Files in current dir"
-            pwd
-            ls -al
-            echo "Creating archive artifact.tar.gz"
-            cp ../package.json .
-            tar -czf ../artifact.tar.gz .
+            cd ../
+            tar -C backend -czvf artifact.tar.gz .
             mkdir -p ~/project/.circleci/ansible/roles/deploy/files
-            mv -f ../artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/.
-            echo "Testing..." > ~/project/.circleci/ansible/roles/deploy/files/testing.txt
+            mv -f artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/.
             echo "Files in: ~/project/.circleci/ansible/roles/deploy/files/"
             cd ~/project/.circleci/ansible/roles/deploy/files/
             pwd
