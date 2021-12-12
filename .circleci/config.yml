@@ -340,29 +340,36 @@ jobs:
           command: |
             apk add --update curl nodejs npm ansible
       - run:
-          name: Deploy backend
+          name: Build backend artifact
           command: |
-            cd backend
+            cd ~/project/backend
             npm install
             npm run build
             # Zip the directory
-            cd ..
+            cd dist
             echo "Files in current dir"
             pwd
             ls -al
             echo "Creating archive artifact.tar.gz"
-            tar -C backend -czf artifact.tar.gz .
+            cp ../package.json .
+            tar -czf ../artifact.tar.gz .
             mkdir -p ~project/.circleci/ansible/roles/deploy/files
-            cp -f artifact.tar.gz ~project/.circleci/ansible/roles/deploy/files/.
+            mv -f ../artifact.tar.gz ~project/.circleci/ansible/roles/deploy/files/.
             echo "Files in: ~project/.circleci/ansible/roles/deploy/files/"
             ls -l ~project/.circleci/ansible/roles/deploy/files/
             echo "Files in: ~/project/.circleci/ansible/"
-            ls -l ~/project/.circleci/ansible/
+            ls -l ~/project/.circleci/ansible/            
+      - run:
+          name: Deploy backend
+          command: |
             echo "EC2 Inventory"
-            cat ~/project/.circleci/ansible/inventory.txt
+            echo ".circleci/ansible/inventory.txt" 
+            cat .circleci/ansible/inventory.txt
+            echo "Files in: .circleci/ansible/"
+            ls -l .circleci/ansible/
             # Run ansible
-            echo "Running ansible deploy-backend.yml"
-            cd ~/project/.circleci/ansible/
+            echo "Running ansible configure-server.yml"
+            cd .circleci/ansible
             pwd
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Rollback on failure      

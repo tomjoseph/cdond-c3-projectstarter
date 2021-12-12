@@ -25,10 +25,16 @@
     path: ~/backend-new
     state: directory
 
-- name: "Copy and unzip compiled backend"
-  unarchive:
+- name: "Copy compiled backend artifact"
+  copy:
     src: artifact.tar.gz
-    dest: "~/backend-new/"
+    dest: "~/backend_new/."
+
+- name: "Untar artifact"
+  shell: |
+    cd ~/backend_new
+    tar -xzf artifact.tar.gz 
+    rm -rf artifact.tar.gz
 
 - name: Setup check2
   shell: |
@@ -49,13 +55,13 @@
     echo "Backend contents:"
     ls -al
     npm install
-    npm run build
+    #npm run build
     pm2 stop default
     rm -f ~/.npm/_logs/*
     #npm run start &
     pm2 start npm -- start
+    # pm2 start main.js
     tail -n 100 ~/.npm/_logs/*
-    echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}"
   register: out_exec_node
 
 - name: Execution debug message
