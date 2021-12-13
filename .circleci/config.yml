@@ -466,13 +466,8 @@ jobs:
         - attach_workspace:
             at: ~/
         - run:
-            name: Get old stack workflow id
+            name: Show all stacks
             command: |
-              # Fetch the Old workflow ID
-              export OldWorkflowID=$( cat  ~/project/oldworkflowid.txt )
-              echo OldWorkflowID: "${OldWorkflowID}"
-              export CurrentWorkflowID="<< pipeline.parameters.workflow-id >>"
-              echo CurrentWorkflowID: "${CurrentWorkflowID}"
               # Fetch the stack names          
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                       --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
@@ -480,6 +475,11 @@ jobs:
         - run:
             name: Remove old stacks and files
             command: |
+              # Fetch the Old workflow ID
+              export OldWorkflowID=$( cat  ~/project/oldworkflowid.txt )
+              echo OldWorkflowID: "${OldWorkflowID}"
+              export CurrentWorkflowID="<< pipeline.parameters.workflow-id >>"
+              echo CurrentWorkflowID: "${CurrentWorkflowID}"
               if [[ "${CurrentWorkflowID}" != "${OldWorkflowID}" ]]
               then
                   echo "Delete Workflow ${OldWorkflowID}"
