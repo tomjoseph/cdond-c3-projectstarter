@@ -177,7 +177,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags "Project=Project03-FE-Tom" \
+              --tags "Project=Project03-FE-Tom-<< pipeline.parameters.workflow-id >>" \
               --stack-name "Frontend-Tom-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"  
       # Rollback on failure      
@@ -198,7 +198,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Project,Values=Project03-BE-Tom" \
+              --filters "Name=tag:Project,Values=Project03-BE-Tom-<< pipeline.parameters.workflow-id >>" \
               --output text >> .circleci/ansible/inventory.txt
             echo "Backend IPs:"
             cat .circleci/ansible/inventory.txt
@@ -301,7 +301,7 @@ jobs:
           command: |
             export BACKEND_IP=$( aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Project,Values=Project03-BE-Tom" \
+              --filters "Name=tag:Project,Values=Project03-BE-Tom-<< pipeline.parameters.workflow-id >>" \
               --output text )
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
@@ -395,7 +395,7 @@ jobs:
             # Fetch and prepare the BACKEND_IP env var
             export BACKEND_IP=$( aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Project,Values=Project03-BE-Tom" \
+              --filters "Name=tag:Project,Values=Project03-BE-Tom-<< pipeline.parameters.workflow-id >>" \
               --output text )
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
