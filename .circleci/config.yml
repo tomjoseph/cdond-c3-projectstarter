@@ -437,7 +437,7 @@ jobs:
                       list-exports --query "Exports[?Name=='WorkflowID'].Value" \
                       --no-paginate --output text )
             echo OldWorkflowID: "${OldWorkflowID}"
-            echo ${OldWorkflowID} > OldWorkflowID.TXT
+            echo ${OldWorkflowID} > ~/project/oldworkflowid.txt
             cat OldWorkflowID.TXT
             echo "Updating Initial Stack!"
             aws cloudformation deploy \
@@ -445,6 +445,10 @@ jobs:
                     --stack-name InitialStack \
                     --parameter-overrides WorkflowID="<< pipeline.parameters.workflow-id >>" \
                     --tags project=udapeople
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/oldworkflowid.txt
       # Here's where you will add some code to rollback on failure  
       - revert-migrations
       - destroy-environment
@@ -455,6 +459,8 @@ jobs:
         - image: amazon/aws-cli
       steps:
         - checkout
+        - attach_workspace:
+            at: ~/
         - run:
             name: Install tar utility
             command: |
@@ -463,7 +469,7 @@ jobs:
             name: Get old stack workflow id
             command: |
               # Fetch the Old workflow ID
-              export OldWorkflowID=$( cat  OldWorkflowID.TXT )
+              export OldWorkflowID=$( cat  ~/project/oldworkflowid.txt )
               echo OldWorkflowID: "${OldWorkflowID}"
               export CurrentWorkflowID="<< pipeline.parameters.workflow-id >>"
               echo CurrentWorkflowID: "${CurrentWorkflowID}"
