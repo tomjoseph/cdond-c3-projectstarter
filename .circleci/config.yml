@@ -433,6 +433,13 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
+            export OldWorkflowID=$( aws cloudformation \
+                      list-exports --query "Exports[?Name=='WorkflowID'].Value" \
+                      --no-paginate --output text )
+            echo OldWorkflowID: "${OldWorkflowID}"
+            echo ${OldWorkflowID} > OldWorkflowID.TXT
+            cat OldWorkflowID.TXT
+            echo "Updating Initial Stack!"
             aws cloudformation deploy \
                     --template-file .circleci/files/cloudfront.yml \
                     --stack-name InitialStack \
@@ -456,11 +463,10 @@ jobs:
             name: Get old stack workflow id
             command: |
               # Fetch the Old workflow ID
-              export OldWorkflowID=$( aws cloudformation \
-                      list-exports --query "Exports[?Name=='WorkflowID'].Value" \
-                      --no-paginate --output text )
+              export OldWorkflowID=$( cat  OldWorkflowID.TXT )
               echo OldWorkflowID: "${OldWorkflowID}"
-              echo CurrentWorkflowID: "<< pipeline.parameters.workflow-id >>"
+              export CurrentWorkflowID="<< pipeline.parameters.workflow-id >>"
+              echo CurrentWorkflowID: "${CurrentWorkflowID}"
               # Fetch the stack names          
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                       --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
@@ -468,13 +474,15 @@ jobs:
         - run:
             name: Remove old stacks and files
             command: |
-              if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
-              # if [[ "${OldWorkflowID}" =~ "${STACKS[@]}"  ]]
-              # if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
+              if [[ "${CurrentWorkflowID}" != "${OldWorkflowID}" ]]
               then
-                  echo "Delete Stack ${OldWorkflowID}"
+                  echo "Delete Workflow ${OldWorkflowID}"
+                  echo "Destroying old environment resources..."
+                  aws cloudformation delete-stack --stack-name "Backend-Tom-${OldWorkflowID}"
+                  aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+                  aws cloudformation delete-stack --stack-name "Frontend-Tom-${OldWorkflowID}"
               else
-                  echo "Do Nothing"
+                  echo "Nothing to Delete!"
               fi
 
 workflows:
@@ -482,20 +490,21 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-#      - test-frontend:
-#          requires: [build-frontend]
-#      - test-backend:
-#          requires: [build-backend]
-#      - scan-backend:
-#          requires: [build-backend]
-#      - scan-frontend:
-#          requires: [build-frontend]
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
       - deploy-infrastructure:
-#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          requires: [build-frontend, build-backend]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [ master ]
       - save-workspace-inventory:
           requires: [deploy-infrastructure]
-#          requires: [build-backend]
       - configure-infrastructure:
           requires: [save-workspace-inventory]
       - run-migrations:
@@ -504,10 +513,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-#          requires: [save-workspace-inventory]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-#          requires: [deploy-backend]
       - cloudfront-update:
           requires: [smoke-test]
       - cleanup:
