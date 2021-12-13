@@ -169,7 +169,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags "Project=Project03-BE-Tom" \
+              --tags "Project=Project03-BE-Tom-<< pipeline.parameters.workflow-id >>" \
               --stack-name "Backend-Tom-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"  
       - run:
@@ -181,7 +181,7 @@ jobs:
               --stack-name "Frontend-Tom-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>"  
       # Rollback on failure      
-#      - destroy-environment
+      - destroy-environment
 #      - notify-on-failure
 
   save-workspace-inventory:
@@ -207,7 +207,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       # Rollback on failure      
-#      - destroy-environment
+      - destroy-environment
 #      - notify-on-failure
 
   configure-infrastructure:
@@ -240,7 +240,7 @@ jobs:
             pwd
             ansible-playbook -i inventory.txt configure-server.yml
       # Rollback on failure
-#      - destroy-environment
+      - destroy-environment
 #      - notify-on-failure
 
   run-migrations:
@@ -278,7 +278,7 @@ jobs:
             fi
       # Rollback on failure      
       - revert-migrations
-#      - destroy-environment
+      - destroy-environment
 #      - notify-on-failure
 
   deploy-frontend:
@@ -321,7 +321,7 @@ jobs:
             aws s3 cp dist s3://udapeople-<< pipeline.parameters.workflow-id >> --recursive
       # Rollback on failure      
       - revert-migrations
-#      - destroy-environment
+      - destroy-environment
 #      - notify-on-failure
 
   deploy-backend:
@@ -373,7 +373,7 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Rollback on failure      
       - revert-migrations
-#      - destroy-environment
+      - destroy-environment
 #      - notify-on-failure
 
   smoke-test:
@@ -417,8 +417,8 @@ jobs:
               return 1
             fi
       # Here's where you will add some code to rollback on failure  
-#      - revert-migrations
-#      - destroy-environment
+      - revert-migrations
+      - destroy-environment
 #      - notify-on-failure
 
   cloudfront-update:
@@ -447,7 +447,7 @@ jobs:
                     --tags project=udapeople
       # Here's where you will add some code to rollback on failure  
       - revert-migrations
-#      - destroy-environment
+      - destroy-environment
 #      - notify-on-failure
 
   cleanup:
