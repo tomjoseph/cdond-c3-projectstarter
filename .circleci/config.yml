@@ -438,7 +438,7 @@ jobs:
                       --no-paginate --output text )
             echo OldWorkflowID: "${OldWorkflowID}"
             echo ${OldWorkflowID} > ~/project/oldworkflowid.txt
-            cat OldWorkflowID.TXT
+            cat ~/project/oldworkflowid.txt
             echo "Updating Initial Stack!"
             aws cloudformation deploy \
                     --template-file .circleci/files/cloudfront.yml \
